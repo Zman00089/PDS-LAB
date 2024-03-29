@@ -2,28 +2,20 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+
 struct Student
 {
-    char name[10];
+    char name[20];
     int roll_no;
     float percentage;
 };
 
-void swapData(struct Student s1,struct Student s2)
+double arr[5];  //use in specs function
+
+void clearBuffer()  //for clearing buffer left after taking string
 {
-    int temp = s1.roll_no;
-    float per = s1.percentage;
-    char name[10];
-
-    strcpy(name,s1.name);
-    strcpy(s1.name,s2.name);
-    strcpy(s2.name,name);
-    
-    s1.percentage = s2.percentage;
-    s2.percentage = per;
-
-    s1.roll_no = s2.roll_no;
-    s2.roll_no = temp; 
+    int c;
+    while ((c = getchar()) != '\n');
 }
 
 int startsWith(char name[],char start[])    //returns 1 if name starts with given initials otherwise 0
@@ -44,23 +36,33 @@ int insert(struct Student database[],int n)    //returns 1 if database updated o
         printf("Database limit reached");
         return 0;
     }
+
     printf("Enter roll no of student :");
     scanf("%d",&temp);
-    for(pos=0 ; pos < n ; pos++)
+
+    for(pos=0 ; pos < n-1 ; pos++)
     {
         if(database[pos].roll_no > temp)
             break;
     }
-    for(int i=n;i>pos;i--)
-    {
-        swapData(database[i],database[i-1]);
-    }
+
+    for(int i=n-1;i>pos;i--)
+        database[i] = database[i-1];
+    
     database[pos].roll_no = temp;
+    clearBuffer();
+
     printf("Enter name of student :");
-    scanf("%s",database[pos].name);
+    gets(database[pos].name);
     printf("Enter percentage of student :");
-    scanf("%f",database[pos].percentage);
+    scanf("%f",&database[pos].percentage);
     return 1;
+}
+
+void show_students(struct Student database[],int n)
+{
+    for(int i=0;i<n;i++)
+        printf("\nName :%.20s\tRoll No.%d\tPercentage :%.2f",database[i].name,database[i].roll_no,database[i].percentage); 
 }
 
 void findOne(struct Student database[],char name[],int n)
@@ -68,8 +70,10 @@ void findOne(struct Student database[],char name[],int n)
     while(n>0)
     {
         if(startsWith(database[n-1].name,name) == 1)
+        {
             printf("\nFound student : %s",database[n-1].name);
             return ;
+        }
         n--;
     }
     printf("No student name found starting with \'%s\'",name);
@@ -82,33 +86,33 @@ void sortName(struct Student database[],int n)
         for(int j=i;j < n-1;j++)
         {
             if(strcmp(database[j].name,database[j+1].name) == 1)
-                swapData(database[j],database[j+1]);
+            {
+                struct Student temp = database[j];
+                database[j] = database[j+1];
+                database[j+1] = temp; 
+            }   
         }
     }
 }
 
 int delete(struct Student database[],int rollno,int n)     //returns 1 if successfully deleted otherwise 0
 {
-    int pos=0;
-    for(;pos<n;pos++)
+    
+    for(int pos=0;pos<n;pos++)
     {
         if(rollno == database[pos].roll_no)
         {
-            strcpy(database[pos].name,'\0');
-            database[pos].roll_no = 0;
-            database[pos].percentage = 0.0;
             for(int i=pos;i<n-1;i++)
-            {
-                swapData(database[i],database[i+1]);
-            }
+                database[i] = database[i+1];
             return 1;
         }
     }
     return 0;
 }
 
-void specs(struct Student database[],int n,double arr[])
+double *specs(struct Student database[],int n)
 {
+    
     double mean,highest_percent,lowest_percent,sd;
     highest_percent=database[0].percentage;
     lowest_percent=database[0].percentage;
@@ -132,12 +136,12 @@ void specs(struct Student database[],int n,double arr[])
     arr[2] = lowest_percent;
     arr[3] = mean;
     arr[4] = sd;
-    
+    return arr;
 }
 void display_options()
 {
     printf("\nOptions :\n1:Insert\n2:Sort students according to Name\n3:Find student via name");
-    printf("\n4:Delete student record\n5:Get statistical data\n0:Exit\nGive Instruction ::-- ");
+    printf("\n4:Delete student record\n5:Get statistical data\n6:List of students\n0:Exit\nGive Instruction ::-- ");
 }
 int main()
 {
@@ -152,35 +156,61 @@ int main()
             case 1:
             n++;
             if(insert(database,n))
-                printf("Updated");
+                printf("Updated");     
             else
+            {
                 printf("Failed to update");
+                n--;
+            }   
             break;
+
             case 2:
             sortName(database,n);
             break;
+
             case 3:
-            char name[15];
+            char find[15];
+            clearBuffer();
             printf("\nEnter the name of student :");
-            gets(name);
-            findOne(database,name,n);
+            gets(find);
+            findOne(database,find,n);
             break;
+
             case 4:
             int roll;
             printf("Enter roll no. of student :");
             scanf("%d",&roll);
-            delete(database,roll,n);
+            if(delete(database,roll,n))
+            {
+                printf("Delete successful");
+                n--;
+            }
+            else
+                printf("Delete unsuccessful");
             break;
+
             case 5:
-            double arr[5];
-            specs(database,n,arr);
-            printf("Specs :\n");
-            for(int i=0;i<5;i++)
-                printf("%lf\n",arr[i]);
+            if(n>0)
+            {
+                double *arr = specs(database,n);
+                printf("Specs :\n");
+                for(int i=0;i<5;i++)
+                    printf("%lf\n",arr[i]);
+            }
+            else
+                printf("No data");    
             break;
+
+            case 6:
+            if(n>0)
+                show_students(database,n);
+            else
+                printf("No data");
+            break;
+
             case 0:
             return 0;
         }
-    }while(instruction != 0);    
+    }while(1);    
     return 0;
 }
