@@ -1,20 +1,54 @@
 #include <stdio.h>
+
+struct control_message
+{
+    int opcode,status_code;
+};
+
+union Packet
+{
+    struct control_message c_msg;
+    char payload[100];
+};
+
+struct DataPacket
+{
+    int flag;
+    union Packet p1;
+};
+
 int main()
 {
-    int x, div=10 , chk=0;
-    printf("Enter a number :");
-    scanf("%d",&x);
-    printf("Square :%d\n",x*x);
-    while( x*x / div != 0)
+    struct DataPacket d1[10];
+    for (int i = 0; i < 10; i++)
     {
-        if ( x == (x*x/div + x*x%div) && (x*x%div)!=0)
+        printf("Option:\n1-Control Message\n2-Payload\n");
+        scanf("%d", &d1[i].flag);
+        switch(d1[i].flag)
         {
-            printf("Kaprekar No. since %d+%d=%d",(x*x/div),(x*x%div),x);
-            chk = 1;
+            case 1:
+                printf("Enter the opcode :");
+                scanf("%d", &d1[i].p1.c_msg.opcode);
+
+                printf("Enter the statuscode :");
+                scanf("%d", &d1[i].p1.c_msg.status_code);
+
+                printf("opcode : %d\n", d1[i].p1.c_msg.opcode);
+                printf("Status code : %d\n", d1[i].p1.c_msg.status_code);
+                break;
+
+            case 2:
+                printf("Enter the payload :");
+                
+                scanf(" %s",d1[i].p1.payload);
+                printf("Payload : %s",d1[i].p1.payload);
+                break;
+
+            default:
+                printf("Invalid choice.\n");
+                break;
         }
-        div*=10;
     }
-    if(chk != 1)
-        printf("Not a Kaprekar No.");
+
     return 0;
 }

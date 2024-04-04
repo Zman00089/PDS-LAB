@@ -1,16 +1,35 @@
-#include <stdio.h>
+#include<stdio.h>
+union EmpDetails{
+    float hourly_wage;
+    double fixed_salary;
+};
+
+struct Employee{
+    int id;
+    char name[20];
+    union EmpDetails ed;
+};
+
 int main()
 {
-    int x,y,z;
-    printf("Enter length of 3 sides :");
-    scanf("%d%d%d",&x,&y,&z);
-    if( x+y>z && x+z>y && y+z>x)
-    {
-        printf("Valid triangle");
-    }
-    else
-    {
-        printf("Invalid triangle");
-    }
+    float hw;
+    double fs;
+    struct Employee emp1;
+
+    printf("Enter Id of the employee (number)");
+    scanf("%d",&emp1.id);
+    
+    printf("Enter the name of Employee");
+    scanf(" %s",emp1.name);
+    
+    printf("Enter the hourly wage of employee");
+    scanf(" %f",&emp1.ed.hourly_wage);
+    hw=emp1.ed.hourly_wage;
+    
+    printf("Enter Fixed salary of employee:");
+    scanf(" %lf",&emp1.ed.fixed_salary);
+    fs=emp1.ed.fixed_salary;
+    
+    printf("\nEmployee details:\nID:%d\nName:%s\nHourly Wages:%f\nSalary:%lf",emp1.id,emp1.name,hw,emp1.ed.fixed_salary);
     return 0;
 }
